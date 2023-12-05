@@ -10,7 +10,7 @@ if __name__ == '__main__':
 
     file_name = "data/day_03_test.txt"
 
-    task_number = day.do_task_1(file_name)
+    task_number = day.do_task_2(file_name)
 
     print(time.time()-start_time)
 
