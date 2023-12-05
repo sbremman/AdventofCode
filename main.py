@@ -1,13 +1,17 @@
 
-import day_1 as day
+import day_03 as day
 
+import time
 
 
 
 if __name__ == '__main__':
+    start_time = time.time()
 
-    file_name = "data/day_1_input.txt"
+    file_name = "data/day_03_test.txt"
 
-    task_number = day.do_day_1(file_name)
+    task_number = day.do_task_1(file_name)
+
+    print(time.time()-start_time)
 
     print(task_number)
