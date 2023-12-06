@@ -1,5 +1,5 @@
 
-import day_03 as day
+import day_05 as day
 
 import time
 
@@ -8,7 +8,7 @@ import time
 if __name__ == '__main__':
     start_time = time.time()
 
-    file_name = "data/day_03_test.txt"
+    file_name = "data/day_05_input.txt"
 
     task_number = day.do_task_2(file_name)
 
