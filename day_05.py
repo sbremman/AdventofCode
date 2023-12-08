@@ -111,49 +111,37 @@ def map_range_in_location_space_to_seed_range(map_lists):
 
     new_ranges = np.array(new_ranges)
 
-    #new_ranges[:, 1] -= 1
-
     new_list_of_adds = [0 for _ in range(len(new_ranges))]
 
     for i in range(len(list_of_ranges)):
         prev_list_of_adds = copy.deepcopy(new_list_of_adds)
-        test_2 = list_of_ranges[i]
         for k in range(len(list_of_ranges[i])):
             old_range = list_of_ranges[i][k]
-            sum = 0
             j = 0
             while j < len(new_ranges):
                 current_range = new_ranges[j]
                 current_range_temp = current_range+prev_list_of_adds[j]
-                """if old_range[0] <= current_range_temp[0]:
-                    if current_range_temp[1] <= old_range[1]:"""
-
-                # Check for the different types of overlap:
-                # current_range_temp = [crt[0], crt[1]], old_range = [or[0], [or[1]]
-                # or[0] <= crt[0] and crt[1] <= or[1] -> all good
-                # or[0] > crt[0] and crt[1] <= or[1] -> create new lists [crt[0], or[0]] and [or[0], crt[1]]
-
 
                 if check_overlap(old_range, current_range_temp):
 
                     intersection, lower_diff, upper_diff = process_ranges(old_range, current_range_temp)
                     not_complete_intersection = False
                     if len(lower_diff) != 0:
-                        lower_diff = lower_diff-new_list_of_adds[j]
+                        lower_diff = lower_diff-prev_list_of_adds[j]
                         not_complete_intersection = True
                         new_ranges = np.append(new_ranges, np.array(lower_diff)[np.newaxis, :], axis=0)
                         new_list_of_adds.append(new_list_of_adds[j])
-                        prev_list_of_adds.append(new_list_of_adds[j])
+                        prev_list_of_adds.append(prev_list_of_adds[j])
 
                     if len(upper_diff) != 0:
-                        upper_diff = upper_diff-new_list_of_adds[j]
+                        upper_diff = upper_diff-prev_list_of_adds[j]
                         not_complete_intersection = True
                         new_ranges = np.append(new_ranges, np.array(upper_diff)[np.newaxis, :], axis=0)
                         new_list_of_adds.append(new_list_of_adds[j])
-                        prev_list_of_adds.append(new_list_of_adds[j])
+                        prev_list_of_adds.append(prev_list_of_adds[j])
 
                     if not_complete_intersection:
-                        intersection = intersection-new_list_of_adds[j]
+                        intersection = intersection-prev_list_of_adds[j]
                         new_ranges[j] = np.array(intersection)
 
                     #if old_range[1] != current_range[0]:
@@ -170,7 +158,7 @@ def map_range_in_location_space_to_seed_range(map_lists):
 
     new_ranges = new_ranges[arr1inds]
     new_list_of_adds = np.array(new_list_of_adds)
-    new_list_of_adds[arr1inds]
+    new_list_of_adds = new_list_of_adds[arr1inds]
 
     return new_ranges, new_list_of_adds
 
@@ -210,47 +198,44 @@ def do_task_1(file_name):
 
 def do_task_2(file_name):
     file = open(file_name, 'r')
-
     read = file.read()
-
     map_lists = split_into_eight_lists(read)
-
     seed_lists = map_lists[0]
     map_lists = map_lists[1:]
-
     map_lists.reverse()
-
     location_range_to_seed_range, location_to_seed_add = map_range_in_location_space_to_seed_range(map_lists)
 
     new_seed_list = []
     for i in range(0, len(seed_lists), 2):
         new_seed_list.append([seed_lists[i], seed_lists[i]+seed_lists[i+1]])
 
-
+    correct_location_range_to_seed_range = None
+    correct_location_to_seed_add = None
+    correct_seed_range = None
+    found = False
     for i in range(len(location_range_to_seed_range)):
         test = location_range_to_seed_range[i]
         test_1 = location_to_seed_add[i]
         location_to_seed_range = location_range_to_seed_range[i] + location_to_seed_add[i]
         for j in range(len(new_seed_list)):
             seed_range = new_seed_list[j]
-
             if check_overlap(location_to_seed_range, seed_range):
-                print("test")
+                correct_location_range_to_seed_range = location_to_seed_range
+                correct_seed_range = seed_range
+                correct_location_to_seed_add = location_to_seed_add[i]
+                found = True
+                break
+            if found:
+                break
+        if found:
+            break
 
+    if correct_location_to_seed_add > 0:
+        correct_seed = max(correct_location_range_to_seed_range[0], correct_seed_range[0])
+        correct_location = correct_seed - correct_location_to_seed_add
 
+    else:
+        correct_seed = min(correct_location_range_to_seed_range[1], correct_seed_range[1])
+        correct_location = correct_seed - correct_location_to_seed_add
 
-    lowest_location = 100000000000000
-
-    """seeds = []
-
-    for i in range(0, len(map_lists[0]), 2):
-        for j in range(map_lists[0][i], map_lists[0][i]+map_lists[0][i+1]):
-            seeds.append(j)
-
-    for seed in seeds:
-        location = get_location_of_seed(seed, map_lists[1:])
-
-        lowest_location = min(lowest_location, location)"""
-
-    return lowest_location
-
+    return correct_location
