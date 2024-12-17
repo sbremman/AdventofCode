@@ -1,72 +1,56 @@
 
-
-def parse_line_return_two_lists(input_string):
-
-    input_string = input_string.strip('\n')
-    input_string = input_string.split(": ")[1]
-
-    input_string_list = input_string.split(" | ")
-
-    left_list = input_string_list[0].split(" ")
-    right_list = input_string_list[1].split(" ")
-
-    num_matches = 0
-
-    for number in right_list:
-        if number in left_list:
-            if number != '':
-                num_matches += 1
-
-
-    return num_matches
-
-
-
-
-
+import numpy as np
 
 
 def do_task_1(file_name):
-    file = open(file_name, 'r')
-    Lines = file.readlines()
 
-    sum = 0
+    return_value = 0
 
-    for line in Lines:
-        num_matches = parse_line_return_two_lists(line)
-        if num_matches == 0:
-            line_value = 0
-        else:
-            line_value =  2 ** (num_matches - 1)
-        sum += line_value
+    data = []
 
-    return sum
+    with open(file_name, 'r') as file:
+        for line in file:
+            new_data = list(line)
+
+            if new_data[-1] == '\n':
+                del new_data[-1]
+            data.append(new_data)
+
+    len_x_data = len(data)
+    len_y_data = len(data[0])
+
+    word_list = ['X', 'M', 'A', 'S']
+
+    for i in range(len_x_data):
+        for j in range(len_y_data):
+
+            for x_dir in [-1, 0, 1]:
+                for y_dir in [-1, 0, 1]:
+                    word_found = 1
+                    if x_dir == 0 and y_dir == 0:
+                        break
+
+                    else:
+                        for word_idx in range(len(word_list)):
+                            x_index = i+x_dir*word_idx
+                            y_index = j+y_dir*word_idx
+                            if (x_index < 0) or (x_index >= len_x_data) or (y_index < 0) or (y_index >= len_y_data):
+                                word_found = 0
+                                break
+                            current_letter = data[x_index][y_index]
+                            if current_letter != word_list[word_idx]:
+                                word_found = 0
+                                break
+                            else:
+                                pass
+                        return_value += word_found
+
+    return return_value
 
 
 def do_task_2(file_name):
-    file = open(file_name, 'r')
-    Lines = file.readlines()
+    import re
 
-    num_cards_won = 1
-    current_card = -1
+    return_value = 0
 
-    card_list = [1] * len(Lines)
-
-    """while num_cards_won:
-        num_cards_won -= 1
-        current_card += 1
-
-        if current_card+1 > len(Lines):
-            break
-        line_value = parse_line_return_two_lists(Lines[current_card])
-
-        num_cards_won += line_value"""
-
-    for i in range(len(Lines)):
-        line = Lines[i]
-        cards_won = parse_line_return_two_lists(line)
-        for j in range(1, cards_won+1):
-            card_list[i+j] += card_list[i]
-
-    return sum(card_list)
-
+    return return_value
